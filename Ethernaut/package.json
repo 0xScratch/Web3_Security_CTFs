@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@ethersproject/address": "^5.7.0",
+    "@openzeppelin/contracts": "^4.9.3"
+  }
+}
