@@ -1,0 +1,10 @@
+
+For this level, you just need to know that on blockchain there's a thing, blockhash used to return some hash if block.number is one of the 256 number, otherwise it returns 0..
+Just clarifying this above line in more detail -> Actually blockhash always calculate the hashes of block.number from the previous 256 blocks to the current one..Just take it in the sense, it doesn't calculate hash of the block which even minted yet!
+That means we can wait for the block.number to pass 256, and return the hash of the block, it be 0 for sure..
+
+Thus, the way you can solve this challenge is:
+
+    1. Call `lockInGuess` with a value of `0x0000000000000000000000000000000000000000000000000000000000000000`
+    2. Wait for approximately 1 hour or check what the previous steps block was and wait until 256 more blocks have been mined. You can of course check this on etherscan.
+    3. Call `Settle()`
