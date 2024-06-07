@@ -1,25 +1,16 @@
-# Ethernaut_Practice
+# Ethernaut
 
 This project is aimed at practicing and learning Ethereum smart contract security through the Ethernaut challenges.
 
 ## Table of Contents
 - [Introduction](#introduction)
-- [Getting Started](#getting-started)
 - [Usage](#usage)
 - [Contributing](#contributing)
 - [License](#license)
 
 ## Introduction
 
-The Ethernaut_Practice project is a collection of solutions to the Ethernaut challenges, which are a series of smart contract security puzzles. The goal of this project is to provide a hands-on learning experience for Ethereum developers to enhance their understanding of smart contract vulnerabilities and best practices.
-
-## Getting Started
-
-To get started with the Ethernaut_Practice project, follow these steps:
-
-1. Clone the repository: `git clone https://github.com/Aryan9592/Ethernaut_Practice.git`
-2. Install the required dependencies: `npm install`
-3. Nail the questions down!
+It is a collection of solutions to the Ethernaut challenges, which are a series of smart contract security puzzles. The goal of this project is to provide a hands-on learning experience for Ethereum developers to enhance their understanding of smart contract vulnerabilities and best practices.
 
 ## Usage
 
