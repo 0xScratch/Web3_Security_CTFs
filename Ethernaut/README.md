@@ -37,6 +37,18 @@ Here I used the browser's console to solve this challenge. We are going to take 
 
 4. At last submit the instance
 
+## 02 - Fallout
+
+For Reference -> [Challenge](./questions/3.Fallout.sol) | [Solution](./answers/3.Fallout.js)
+
+There's a blunder in the constructor name itself as it doesn't matches with the contract name.
+
+Just call the `Fal1out` function and you will be the owner.
+
+```javascript
+    await contract.Fal1out()
+```
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
