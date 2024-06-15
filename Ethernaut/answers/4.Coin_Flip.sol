@@ -40,7 +40,7 @@ contract Attacker{
         coinflip.flip(side);
     }
 
-    function ConsecutiveWins() external view returns (uint){
+    function consecutiveWins() external view returns (uint){
         return coinflip.consecutiveWins();
     }
 
