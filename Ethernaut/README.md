@@ -79,6 +79,20 @@ The reason why we are able to win the coin flip is because the `blockhash` funct
 
 6. Remember to call the `attack` function 10 times in order to win the challenge.
 
+## 04 - Telephone
+
+For Reference -> [Challenge](./questions/5.Telephone.sol) | [Solution](./answers/5.Telephone.sol)
+
+All we need is to call the `attack` function within the [Solution](./answers/5.Telephone.sol) contract after deploying it.
+
+```solidity
+    function attack() public {
+        telephone.changeOwner(address(this));
+    }
+```
+
+The reason this works is because of the vulnerable condition - `(tx.origin != msg.sender)` in the `changeOwner` function of the `Telephone` contract. The `tx.origin` is the original sender of the transaction and `msg.sender` is the current sender of the transaction. So, when we call the `attack` function, the `msg.sender` is the address of the `Solution` contract and the `tx.origin` is the address of the EOA. Hence, the condition `(tx.origin != msg.sender)` is true and the `changeOwner` function is executed.
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
