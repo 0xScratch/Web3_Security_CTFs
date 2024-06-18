@@ -93,6 +93,38 @@ All we need is to call the `attack` function within the [Solution](./answers/5.T
 
 The reason this works is because of the vulnerable condition - `(tx.origin != msg.sender)` in the `changeOwner` function of the `Telephone` contract. The `tx.origin` is the original sender of the transaction and `msg.sender` is the current sender of the transaction. So, when we call the `attack` function, the `msg.sender` is the address of the `Solution` contract and the `tx.origin` is the address of the EOA. Hence, the condition `(tx.origin != msg.sender)` is true and the `changeOwner` function is executed.
 
+## 05 - Token
+
+For Reference -> [Challenge](./questions/6.Token.sol) | [Solution](./answers/6.Token.js)
+
+To crack this challenge, one need to have a knowledge of underflows and overflows...
+Now, here we have 20 tokens and if we send someone 21 tokens which seems kind of impossible but wait, we are using `uint` here that means it can go negative and hence the balance will be 2^256 - 21 which is a huge number and hence the balance will be huge.
+
+If we look at `transfer` function below:
+
+```solidity
+    function transfer(address _to, uint _value) public returns(bool) {
+        require(balances[msg.sender] - _value >= 0);
+        balances[msg.sender] -= _value;
+        balances[_to] += _value;
+        return true;
+    }
+```
+
+Here, if we call the `transfer` function with `_to` as someone's address and `_value` as 21, then `20 - 21 -> -1 <=> 2^256` and hence the balance will be huge.
+
+1. Let's first check our current balance which gonna be 20 tokens
+
+```javascript
+    await contract.balanceOf(player)
+```
+
+2. Now transfer 21 tokens to someone's address
+
+```javascript
+    await contract.transfer("anyone-address", 21)
+```
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
