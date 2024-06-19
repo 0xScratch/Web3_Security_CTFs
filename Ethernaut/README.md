@@ -125,6 +125,34 @@ Here, if we call the `transfer` function with `_to` as someone's address and `_v
     await contract.transfer("anyone-address", 21)
 ```
 
+## 06 - Delegation
+
+For Reference -> [Challenge](./questions/7.Delegation.sol) | [Solution](./answers/7.Delegation.js)
+
+This is an interesting challenge and for this you need to have certain knowledge of how delegate calls works and can be manipulated in phase of vulnerability.
+An interesting activity is provided in [Bonus](/Ethernaut/Bonus/DelegateCalls/) section which will help you understand a little concept about delegate calls. Research on your own basis will be helpful.
+
+Now, let's come to the challenge:
+
+1. First, we need to check which contract we are interacting with - `Delegate` or `Delegation`.
+
+```shell
+    contract.abi
+```
+
+2. Now we will make a variable that contains our call to `pwn` and then that call will send through an transaction to the `Delegation` contract. As `Delegation` contract contains a `fallback` function that usually take any transaction and then delegate it to the `Delegate` contract.
+
+```javascript
+    var pwned = web3.utils.keccak256("pwn()")
+    await contract.sendTransaction(pwned)
+```
+
+3. At last, check the owner and submit!
+
+```javascript
+    await contract.owner()
+```
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
