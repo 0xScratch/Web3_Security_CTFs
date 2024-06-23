@@ -215,6 +215,12 @@ Let's come to this challenge, first thing is - `private` doesn't mean your data 
     await contract.unlock("your_hexadecimal_value")
 ```
 
+## 09 - King
+
+For reference -> [Challenge](./questions/09.King.sol) | [Solution](./answers/09.King.sol)
+
+
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
