@@ -219,7 +219,20 @@ Let's come to this challenge, first thing is - `private` doesn't mean your data 
 
 For reference -> [Challenge](./questions/09.King.sol) | [Solution](./answers/09.King.sol)
 
+This is an interesting challenge and also based on a real dapp which kind of did the same thing. The challenge is all about disrupting the system and become the king which can't be de-throned.
 
+All you need to know is how the `fallback` function works and some details about `transfer` function in solidity. Here, the issue is in `receive` function which is using `transfer` function to send the ether to the previous king. The `transfer` function has a gas limit of 2300 and if the gas limit is exceeded then the transaction will be reverted. And that's the key to solve this challenge.
+
+```solidity
+    receive() external payable {
+        require(msg.value >= prize || msg.sender == owner);
+        payable(king).transfer(msg.value);
+        king = msg.sender;
+        prize = msg.value;
+    }
+```
+
+1. 
 
 ## Contributing
 
