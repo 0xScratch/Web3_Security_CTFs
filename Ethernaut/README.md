@@ -232,7 +232,9 @@ All you need to know is how the `fallback` function works and some details about
     }
 ```
 
-1. 
+1. Deploy the contract provided in [Solution](./answers/09.King.sol) file with the address of the king contract as an argument and also send the ether more than the current highest value.
+
+2. You will made king of the contract and now whenever someone tries to become the king, the transaction will be reverted as the gas limit will exceed and no one can replace you.
 
 ## Contributing
 
