@@ -289,7 +289,42 @@ To hack this, we will deploy a malicious contract that will call the `withdraw` 
     }    
 ```
 
+## 11 - Elevator
 
+For reference -> [Challenge](./questions/11.Elevator.sol) | [Solution](./answers/11.Elevator.sol)
+
+This challenge gives a knowledge about how interfaces could be vulnerable and thus manipulated. The `Elevator` contract contains an interface `Building` which has a function `isLastFloor`, all we have to do is create another contract named as `Building` and present it with the `isLastFloor` function that returns `false` at first and returns `true` upon calling it again. This is done because the `goTo` function demands such functionality from that `floor` parameter which be provided to it, Take a look at `Elevator` contract:
+
+```solidity
+    contract Elevator {
+        bool public top;
+        uint public floor;
+
+        function goTo(uint _floor) public {
+            Building building = Building(msg.sender);
+
+            if (! building.isLastFloor(_floor)) {
+            floor = _floor;
+            top = building.isLastFloor(floor);
+            }
+        }
+    }
+```
+
+Thus, we be creating a contract named as `Building` and providing it with both `isLastFloor` and `goTo` functions which will help us in reaching the top floor. The contract is provided in the [Solution](./answers/11.Elevator.sol) file, and here's a glimpse of that `isLastFloor` function I was talking about:
+
+```solidity
+    bool public toggle = true;
+
+    function isLastFloor(uint) public returns(bool){
+        toggle = !toggle;
+        return toggle;
+    }
+```
+
+Look at the way `isLastFloor` is implemented above, as when `goTo` function will call it once it will return `false` the first time and then will return true.
+
+Hence, deploy the solution contract and call `goTo`
 
 ## Contributing
 
