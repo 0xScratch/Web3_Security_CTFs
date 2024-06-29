@@ -392,6 +392,10 @@ Now, let's solve this challenge:
     await contract.locked()
 ```
 
+## 13 - Gatekeeper One
+
+For reference -> [Challenge](./questions/13.Gatekeeper_One.sol) | [Solution](./answers/13.Gatekeeper_One.sol)
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
