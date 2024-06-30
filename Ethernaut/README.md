@@ -396,44 +396,6 @@ Now, let's solve this challenge:
 
 For reference -> [Challenge](./questions/13.Gatekeeper_One.sol) | [Solution](./answers/13.Gatekeeper_One.sol)
 
-This challenge was quite difficult to understand in first go, but that's ok it's part of the process. you need to get familiar with certain topics like:
-
-- Bit masking
-- tx.origin vs msg.sender
-- opcodes
-- what is gasleft()
-
-Coming to the question, one need to break 3 gates in order to pass this challenge.
-
-`GateOne`: You must have seen it before and we know that in order to break it, all we have to do is call the `enter` function from some other contract.
-
-```solidity
-    modifier gateOne() {
-        require(msg.sender != tx.origin);
-        _;
-    }
-```
-
-`GateTwo`: This gonna use up some brute force technique, mainly using `gasleft()` in a way such that we meet the required condition.
-
-```solidity
-    modifier gateTwo() {
-        require(gasleft() % 8191 == 0);
-        _;
-    }
-```
-
-`GateThree`: Need an understanding of conversion between uint and bytes, bit masking and some other math stuff!
-
-```solidity
-    modifier gateThree() {
-        require(uint32(uint64(_gateKey)) == uint16(uint64(_gateKey)), "GatekeeperOne: invalid gateThree part one");
-        require(uint32(uint64(_gateKey)) != uint64(_gateKey), "GatekeeperOne: invalid gateThree part two");
-        require(uint32(uint64(_gateKey)) == uint16(uint160(tx.origin)), "GatekeeperOne: invalid gateThree part three");
-        _;
-    }
-```
-
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
