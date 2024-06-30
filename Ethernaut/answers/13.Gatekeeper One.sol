@@ -25,7 +25,7 @@
     my wallet address is -> 0x9aFE8fCbc8465b73319520AFEDba0C0179f26D97, which is kind of 20 bytes..make sure that each byte covers up '2' digits
     cutting this wallet address to 8 bytes, we get
 
-    key -> 0x9aFE8fCbc8465b73, this key is of bytes8 <=> uint64
+    key -> 0xEDba0C0179f26D97, this key is of bytes8 <=> uint64
 
     let's dive into the details with each line
     // 1 - uint32(uint64(_gateKey)) == uint16(uint64(_gateKey))
@@ -41,11 +41,11 @@
 
     Summing up -
 
-    key ->  0x9aFE8fCbc8465b73
+    key ->  0xEDba0C0179f26D97
                     &
     mask -> 0xFFFFFFFF0000FFFF, why is that? => to just make our key pass to all three conditions
                 'equals'
-    new ->  0x9aFE8fCb00005b73, here 'F' represents kind of 1, and 'F & 8 -> 8'
+    new ->  0xEDba9C9100006D97, here 'F' represents kind of 1, and 'F & 8 -> 8'
 */
 
 // SPDX-License-Identifier: MIT
