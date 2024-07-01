@@ -4,14 +4,14 @@
 
     Anyways, Let's fucking go!!
 
-    # Gate 1: There's no need to say anything about this gate, just attack with a smart contract and you gonna fuck it
+    # Gate 1: There's no need to say anything about this gate, just attack with a smart contract and you gonna nail it
 
     # Gate 2: This gate is based on the fact that, no external contract should interact with this contract..
               - Actually that 'extcodesize' checks the size of the contract on a particular address, suppose I am interacting with that contract with my own smart contract then I be denied from it, because my 'extcodesize' won't be zero, But if I interact it with any EOA..guess what I be successful cuz EOA don't have any code within them, i.e no smart contracts
               - Yea Yea, a problem I see here and you too..Now if we did use a EOA then how we be passing through gate 1..Here's the answer to it!!
               - There's used to be a vulnerability with this 'extcodesize', just take a step back to basics, when we slide through any constructor, that's the state when the contract is being deployed but haven't finished the process yet, that means between the process of deploying contract, if we called that particular 'extcodesize' our size will still be zero cuz we really haven't deployed any contract till now (Infact! we are halfway ^_^), This fools the barrier and we are going in buddy!!
 
-    # Gate 3: This was quite easy and as well as be difficult too if you don't really know much about XOR. Try to fucking read something about it or just stay your ass here:
+    # Gate 3: This was quite easy and as well as be difficult too if you don't really know much about XOR. Try to fucking read something about it or just stay here:
               - 'XOR' or '^' is nothing but it just when performed between any two binary numbers, it act like:
                 
                 |   X   |   Y   |  XOR  |
