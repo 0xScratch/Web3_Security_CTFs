@@ -469,6 +469,53 @@ At last, deploy the contract provided in [Solution](./answers/13.Gatekeeper_One.
 
 Call the `hack` function and submit the instance...Cheers!
 
+## 14 - Gatekeeper Two
+
+For reference -> [Challenge](./questions/14.Gatekeeper_Two.sol) | [Solution](./answers/14.Gatekeeper_Two.sol)
+
+Just like the previous challenge, we have to pass through three gates in order to solve this challenge. First gate is similar to the previous challenge i.e call the `enter` function through different contract. Now let's look at second gate modifier:
+
+```solidity
+    modifier gateTwo() {
+        uint x;
+        assembly { x := extcodesize(caller()) }
+        require(x == 0);
+        _;
+    }
+```
+
+Here, the `extcodesize` function is used to get the size of the code at the address provided as an argument. If the size is 0, then the address is an EOA otherwise it's a contract. But we can't really use an EOA as then the other gates won't be cleared away. Thus, there's a trick and a thing to remember i.e when a contract is deployed and it's constructor is called then the `extcodesize` will return 0. Thus, this gate is solved
+
+Now, let's look at the third gate modifier:
+
+```solidity
+    modifier gateThree(bytes8 _gateKey) {
+        require(uint64(bytes8(keccak256(abi.encodePacked(msg.sender)))) ^ uint64(_gateKey) == type(uint64).max);
+        _;
+    }
+```
+
+Here, our `gateKey` should be '^' or 'XOR' of `uint64(bytes8(keccak256(abi.encodePacked(msg.sender))))` such that it could be equal to `type(uint64).max` i.e `0xFFFFFFFFFFFFFFFF`. Do check about XOR if you are not familiar with it.
+
+So in order to solve this gate, we be using `~` which is a bitwise NOT operator and helps in finding the complement of any particular value. The reason we need a complement here is, In the equation A ^ B = X, our X is clear i.e '0xFFF...', A is clear i.e keccak hash of msg.sender which be the address of the contract we be using to call the `enter` function of `Gatekeeper Two` contract. The only value which is unknown is our gateKey and obviously it be the complement of A, thus our key is `~bytes8(keccak256(abi.encodepacked(address(this))))`
+
+Before deploying our [solution](./answers/14.Gatekeeper%20Two.sol) let's look at it:
+
+```solidity
+    contract Attack{
+        // Here, I am solving this using my first method
+        // But you can consider even use this code -> bytes8 key = bytes8(keccak256(abi.encodePacked(address(this)))) ^ 0xffffffffffffffff;
+        bytes8 key = ~bytes8(keccak256(abi.encodePacked(address(this))));
+
+        constructor(address victim){
+            // Here we called the function at the time of deployment, thus bypassing the second gate!
+            GateKeeperTwo(victim).enter(key);
+        }
+    }
+```
+
+It will automatically call the `enter` function as you deploy it...Cheers!
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
