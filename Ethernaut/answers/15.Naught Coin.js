@@ -5,7 +5,7 @@
 
     This is just a simple ERC20 token implementation and creation of our own token that is named 'NaughtCoin', with some large amount of initial supply and that all is alloted to our wallet address..
     The goal is to transfer or just empty out our current wallet..Seems easy right?
-    But there's a fucking twist, if you closely look for that 'trasnfer' function, you will find out that modifier which stops us to use it for around 10 years, hmm really painful!!
+    But there's a fucking twist, if you closely look for that 'transfer' function, you will find out that modifier which stops us to use it for around 10 years, hmm really painful!!
 
     Now, the catch is that it's easy to take out tokens from our wallet, just need some quick brainstorming..
 
@@ -16,7 +16,7 @@
     'transferFrom' - the only accounts which got permission are allowed to spend tokens from the referred wallet (refer to github)
 */
 
-// first we gonna check the balannce of our account using javascript implementing functions
+// first we gonna check the balance of our account using javascript implementing functions
 (await contract.balanceOf(player)).toString()
 "1000000000000000000000000"
 
