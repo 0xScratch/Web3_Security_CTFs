@@ -516,6 +516,29 @@ Before deploying our [solution](./answers/14.Gatekeeper%20Two.sol) let's look at
 
 It will automatically call the `enter` function as you deploy it...Cheers!
 
+## 15 - Naught Coin
+
+For reference -> [Challenge](./questions/15.Naught_Coin.sol) | [Solution](./answers/15.Naught_Coin.js)
+
+In this challenge, we got a contract with some tokens minted in our name in a large quantity called Naught Coin. Our task is to send these tokens to some random address but the problem is this contract have applied a so called modifier `lockTokens` which prevents us from taking out our tokens for around 10 years.
+
+```solidity
+    uint public timelock = block.timestamp + 10 * 365 days;
+
+    modifier lockTokens() {
+        if (msg.sender == player) {
+            require(block.timestamp > timelock);
+            _;
+        } else {
+            _;
+        }
+    }
+```
+
+In order to solve this challenge, we be using two functions related to ERC20 contract i.e `approve` and `transferFrom`. The `approve` function is used to approve the any contract to spend some tokens on our behalf and the `transferFrom` function is used to transfer the tokens from our account to some other account. That's it!
+
+Just follow the steps provided in the [Solution](./answers/15.Naught_Coin.js) file and you are good to go!
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
