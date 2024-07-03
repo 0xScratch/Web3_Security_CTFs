@@ -1,7 +1,7 @@
 /*
     Kind of easy level if you have done that 'delegates' thing in bonus part..Otherwise it might be difficult to understand but tbh, a lot of stuff to learn
 
-    Moreover, don't fell in the trap of solving this whole level with the help of remix (I wasted a lot of time in that and felt like my answer if fucking wrong). But that's the part of learning the ways to cross a journey, and most important thing is to learn from other people's mistakes!!
+    Moreover, don't fell in the trap of solving this whole level with the help of remix (I wasted a lot of time in that and felt like my answer is fucking wrong). But that's the part of learning the ways to cross a journey, and most important thing is to learn from other people's mistakes!!
 
     Well, let's begin
 
