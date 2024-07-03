@@ -1,6 +1,6 @@
 # Ethernaut Solutions
 
-Solution to the Ethernaut challenges!
+Solution to the [Ethernaut](https://ethernaut.openzeppelin.com/) challenges!
 
 ## 00 - Hello Ethernaut
 
