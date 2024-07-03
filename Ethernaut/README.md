@@ -539,6 +539,16 @@ In order to solve this challenge, we be using two functions related to ERC20 con
 
 Just follow the steps provided in the [Solution](./answers/15.Naught_Coin.js) file and you are good to go!
 
+## 16 - Preservation
+
+For reference -> [Challenge](./questions/16.Preservation.sol) | [Solution](./answers/16.Preservation.sol)
+
+This challenge is related to `delegate calls` and their common problems which developers make, it be good to have your hands on the [bonus section](./Bonus/DelegateCalls/)
+
+Let's come to the challenge now, the problem is how state variables are strucutred between both `Preservation` and `LibraryContract` i.e Preservation is acting like a proxy and using the logic from LibraryContract by using the function `setTime` and targeting the `storedTime` variable. But if you take a look, `storedTime` is present on slot 3 in `Preservation` contract whereas it's present on slot 0 in `LibraryContract` which creates the vulnerability.
+
+Thus, we be using the hack contract provided in the [Solution](./answers/16.Preservation.sol) file and calling the `setFirstTime` function with our contract's address as the argument i.e `uint256(uint160(address(this)))` in the console which will set `address public timeZone1Library` in `preservation` contract as our hack contract's address and thus calling `setFirstTime` again with any random integer will turn us the owner of preservation contract. You will get all this with ease if you go through that bonus section, saying it again!
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
