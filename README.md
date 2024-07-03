@@ -2,8 +2,8 @@
 
 This repository contains the following CTFs:
 
-- [Ethernaut](https://ethernaut.openzeppelin.com/)
-- [Capture the Ether](https://capturetheether.com/)
+- [Ethernaut](./Ethernaut/)
+- [Capture the Ether](./Capture_The_Ether/)
 
 Refer to the README files in each directory for solutions!
 
