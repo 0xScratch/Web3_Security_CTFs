@@ -549,6 +549,14 @@ Let's come to the challenge now, the problem is how state variables are strucutr
 
 Thus, we be using the hack contract provided in the [Solution](./answers/16.Preservation.sol) file and calling the `setFirstTime` function with our contract's address as the argument i.e `uint256(uint160(address(this)))` in the console which will set `address public timeZone1Library` in `preservation` contract as our hack contract's address and thus calling `setFirstTime` again with any random integer will turn us the owner of preservation contract. You will get all this with ease if you go through that bonus section, saying it again!
 
+## 17 - Recovery
+
+For reference -> [Challenge](./questions/17.Recovery.sol) | [Solution](./answers/17.Recovery/)
+
+In this challenge, we need to recover funds from a contract whose address we don't know. Now that's simple if you know about [Etherscan](https://etherscan.io/) and how it works. Etherscan is a block explorer for the Ethereum blockchain and it provides a lot of information about the transactions and contracts on the Ethereum blockchain. We can use Etherscan to get the address of the contract. Other way is to use the `instance-address` and `nonce` to get it, explained [here](./answers/17.Recovery/17.Recovery.js).
+
+After getting the contract address, all you need is to deploy the contract provided [here](./answers/17.Recovery/17.Recovery.sol) and call the `attack` function which will call the `selfdestruct` function of the contract and send all the ether to the our address.
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
