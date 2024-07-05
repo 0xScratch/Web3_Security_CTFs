@@ -557,6 +557,14 @@ In this challenge, we need to recover funds from a contract whose address we don
 
 After getting the contract address, all you need is to deploy the contract provided [here](./answers/17.Recovery/17.Recovery.sol) and call the `attack` function which will call the `selfdestruct` function of the contract and send all the ether to the our address.
 
+## 18 - Magic Number
+
+For reference -> [Challenge](./questions/18.Magic_Number.sol) | [Solution](./answers/18.Magic_Number.js)
+
+This challenge is kind of hard and need one to have a bit understanding of how EVM works and about opcodes. Thus, the following video will definitely help in this as I myself got a lot of help from there. It be kind of a long one, about 43 minutes but be worth it:
+
+[D-Squared - Magic Number](https://www.youtube.com/watch?v=FsPWuKK8mWI)
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
