@@ -42,7 +42,7 @@ contract Vault{
     // slot 6 - length of array
     // starting from slot keccak256(6) - array elements
     // slot where array element is stored = keccak256(slot) + (index * elementSize)
-    // where slot = 6 and elementSize = 2 (1 (uint) + 1 (bytes32)) -> 2 slots next ot keccak256(6) gonna be booked by first element
+    // where slot = 6 and elementSize = 2 (1 (uint) + 1 (bytes32)) -> 2 slots next to keccak256(6) gonna be booked by first element
     User[] private users;
 
     // slot 7 - empty
