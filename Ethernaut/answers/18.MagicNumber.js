@@ -1,6 +1,6 @@
-// Kind of a difficult one for me, or it's just happens when you are not really aware of much of the stuff. Lessor learned -> Fucking grab up assembly
+// Kind of a difficult one for me, or it's just happens when you are not really aware of much of the stuff. Lesson learned -> Fucking grab up assembly
 
-// I won't be explaining much here, cuz then it be a freaking long article. Better to watch the D-squared video of ethernaut series
+// I won't be explaining much here, cuz then it be a freaking long article. Better to watch the D-squared video of ethernaut series - https://www.youtube.com/watch?v=FsPWuKK8mWI
 
 
 // First we be storing our bytecode in a var
