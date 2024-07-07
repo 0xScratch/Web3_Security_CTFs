@@ -16,6 +16,6 @@ const mapStartSlot = BigNumber.from(ethers.utils.keccak256(mapLengthAddress));
 const NUMBER_OF_SLOTS = BigNumber.from("2").pow("256");
 const ownerPositionInMap = NUMBER_OF_SLOTS.sub(mapStartSlot);
 
-// Overriding the poistion of owner slot using revise function with player's address
+// Overriding the position of owner slot using revise function with player's address
 const parsedAddress = ethers.utils.hexZeroPad(player.address, 32);
 await contract.revise(ownerPositionInMap, parsedAddress);
