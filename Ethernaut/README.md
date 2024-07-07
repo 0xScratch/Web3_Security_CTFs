@@ -565,6 +565,95 @@ This challenge is kind of hard and need one to have a bit understanding of how E
 
 [D-Squared - Magic Number](https://www.youtube.com/watch?v=FsPWuKK8mWI)
 
+## 19 - Alien Codex
+
+For reference -> [Challenge](./questions/19.Alien_Codex.sol) | [Solution](./answers/19.Alien_Codex.js)
+
+This challenge is all about accessing that storage which wasn't accessible to us and then become the owner of the contract. The vulnerability clearly lies in `retract` function:
+
+```solidity
+    function retract() contacted public {
+        codex.length--;
+    }
+```
+
+The thing is, `codex` is a dynamic array and it's empty at the start. So, if we call the `retract` function, it will reduce the length of the array by 1 and hence the length will be `2^256 - 1` which is a huge number. Thus, we got the access to the whole storage.
+
+Before calling `retract`, the owner variable was present right in the 0th slot of the storage with boolean `contact` which is false right now. And, `codex` dynamic array is present at 2nd slot i.e it's length is at 1st slot but the actual data starts from `keccak256(bytes32(slot_at_which_array_length_is_stored))`. i.e 1st slot. Further values are then stored at `keccak256(bytes32slot_at_which_array_length_is_stored)) + 1`, `keccak256(bytes32(slot_at_which_array_length_is_stored)) + 2` and so on.
+
+So, now the question is when we got the access of whole array by calling the `retract` function...how we gonna change the owner? As according to us, the owner is present at 0th slot but we can't change it directly. Although, we got another function present in `Alien Codex` contract which is `revise`. This function lets us change any value in the array if we know it's index. Thus, we need to find the index of the owner in the array and then change it to our address. But there's a catch, index ain't 0 as we don't know from where the array's data starts, Let's explain this with a little exercise:
+
+Let's assume that the maximun slots of storage are `10` and `keccak256(bytes32(1))` is `7`.
+
+| slot | variables               | codex       |
+| ---- | ----------------------- | ----------- |
+| 0    | owner                   | codex[3]    |
+| 1    | codex.length (==9)      | codex[4]    |
+| 2    |                         | codex[5]    |
+| 3    |                         | codex[6]    |
+| 4    |                         | codex[7]    |
+| 5    |                         | codex[8]    |
+| 6    |                         | unreachable |
+| 7    | `keccak256(bytes32(1))` | codex[0]    |
+| 8    |                         | codex[1]    |
+| 9    |                         | codex[2]    |
+
+Here, codex.length is 9 as one slot consists of the length value itself which we don't know. And previously, as length of the codex was stored in 1st slot, according to above assumption `keccak256(bytes32(1))` is `7`. Thus, the data at 7th slot became the 0 index of codex array and next slot becomes the 1 index and so on.
+
+As we can see in above assumption, the owner variable is present at 3rd index...thus equation comes out to be, `x = 10 - 7` i.e `Owner's index = Total number of slots - slot from where the codex data starts`. That's what gonna solve this challenge.
+
+Now, let's solve this:
+
+1. In the browser's console, first we will try making `contact` true as it's required in calling other functions due to the `contacted` modifier. Thus, we will call `makeContract` function first.
+
+```javascript
+    await contract.makeContract()
+```
+
+2. Then we will be calling `retract` function, and you know why!
+
+```javascript
+    await contract.retract()
+```
+
+3. Now, we will get the slot from where the actual codex data starts. We know the length of the codex array is stored in 1st slot then:
+
+```javascript
+    // Here number 1 is converted to bytes32
+    const mapLengthAddress = "0x0000000000000000000000000000000000000000000000000000000000000001";
+
+    // Getting the slot from where the codex data starts i.e keccak256(bytes32(1))
+    const mapStartSlot = BigNumber.from(ethers.utils.keccak256(mapLengthAddress));
+```
+
+4. Now, we will be getting the index of owner slot and also we know the equation.
+
+```javascript
+    // Getting the total number of slots
+    const NUMBER_OF_SLOTS = BigNumber.from("2").pow("256");
+
+    // Getting the index of owner by the equation explained above
+    const ownerPositionInMap = NUMBER_OF_SLOTS.sub(mapStartSlot);
+```
+
+5. Now, we got the index of owner...finally it's time to change it to our address using `revise` function.
+
+```javascript
+    // Padding our address with 0s to make it 32 bytes
+    const parsedAddress = ethers.utils.hexZeroPad(player.address, 32);
+
+    // Using revise function by providing index and our address
+    await contract.revise(ownerPositionInMap, parsedAddress);
+```
+
+6. At last, check the owner and submit!
+
+```javascript
+    await contract.owner()
+```
+
+***Note: `code.length--` only works with solidity versions prior to 0.6.0, for versions after that you need to use `code.pop()`. Also, from 0.8.0 solidity implemented underflow/overflow checks right in the compiler.***
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
