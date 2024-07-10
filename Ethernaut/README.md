@@ -731,6 +731,24 @@ Thus, all we need to solve this challenge is to create a contract named Buyer wi
 
 First condition will let us inside the `if` block of the `buy` function and then the 2nd condition will change the price to 1 which is less than the actual price. Now, deploy the contract and call the `attack` function...submit!
 
+## 22 - DEX
+
+For reference -> [Challenge](./questions/22.DEX.sol) | [Solution](./answers/22.DEX.js)
+
+This challenge is quite interesting as we are provided a kind of DEX and two token types, tokenA and tokenB. Our task is to make the balance of some token in DEX to be 0 which usually doesn't happen as DEX are designed this way. But here, we gonna take the advantage of price function i.e `getSwapPrice`:
+
+```solidity
+    function getSwapPrice(
+        address from,
+        address to,
+        uint256 amount
+    ) public view returns (uint256) {
+        return ((amount * IERC20(to).balanceOf(address(this))) / IERC20(from).balanceOf(address(this)));
+    }
+```
+
+As there are no floating numbers in Solidity, results are rounded, and it happens that sometimes they are rounded down. So, swapping them back and forth with work for us. Will advise to check this [article](https://dev.to/nvnx/ethernaut-hacks-level-22-dex-1e18) which have explained this challenge in depth as I got a lot of help from there!
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
