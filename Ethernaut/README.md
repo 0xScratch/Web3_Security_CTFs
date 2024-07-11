@@ -749,6 +749,18 @@ This challenge is quite interesting as we are provided a kind of DEX and two tok
 
 As there are no floating numbers in Solidity, results are rounded, and it happens that sometimes they are rounded down. So, swapping them back and forth with work for us. Will advise to check this [article](https://dev.to/nvnx/ethernaut-hacks-level-22-dex-1e18) which have explained this challenge in depth as I got a lot of help from there!
 
+## 23 - DEX Two
+
+For reference -> [Challenge](./questions/23.DEX_Two.sol) | [Solution](./answers/23.Dex%20Two/)
+
+This challenge is similar to the previous one, with the difference that this one omits the following validation when swapping tokens:
+
+```solidity
+    require((from == token1 && to == token2) || (from == token2 && to == token1), "Invalid tokens");
+```
+
+This means we can swap any token. So, we can create a random token. Send it to the contract, and swap it for the ones we're interested in. Also check out this [article](https://dev.to/nvnx/ethernaut-hacks-level-23-dex-two-4424) if you missed previous challenge or still confused about the solution!
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
