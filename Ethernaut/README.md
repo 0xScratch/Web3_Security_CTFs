@@ -761,6 +761,12 @@ This challenge is similar to the previous one, with the difference that this one
 
 This means we can swap any token. So, we can create a random token. Send it to the contract, and swap it for the ones we're interested in. Also check out this [article](https://dev.to/nvnx/ethernaut-hacks-level-23-dex-two-4424) if you missed previous challenge or still confused about the solution!
 
+## 24 - Puzzle Wallet
+
+For reference -> [Challenge](./questions/24.Puzzle_Wallet.sol) | [Solution](./answers/24.Puzzle_Wallet.js)
+
+This solution is widely explained in the solution itself, with those links. So, I will advise you to go through that and then try to solve this challenge. It's a bit tricky but you will get it!
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
