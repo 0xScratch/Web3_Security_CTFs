@@ -1,7 +1,7 @@
 /*
     Well, it was a tough one (even to understand!)
 
-    Actually I would advice you to look for the D-Squared video for this level but still I gonna try my best to explain this level
+    Actually I would advice you to look for the D-Squared [video](https://www.youtube.com/watch?v=toVc-iX-XAA&t=1052s) for this level but still I gonna try my best to explain this level
 
     Let's gear up, but wait..Make sure you understand the concepts of -> delegateCalls, proxy contracts (especially how they work), storage collisions while using proxy
 
