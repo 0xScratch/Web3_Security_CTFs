@@ -7,7 +7,7 @@
 
     Vulnerability - The main vulnerability is in the initialize() function inside the Engine contract, You must have noticed that the function visibility is set to 'external' which makes it possible to get called again, whereas in UUPS the initialize function must be called just once.
 
-    In order to take the advantage of this vulnerability, we be doing the following steps and fuck this problem right...
+    In order to take the advantage of this vulnerability, we be doing the following steps and solve this problem!
 */
 
 // This line gets us the address of the Engine contract, Make sure that the 'IMPLEMENTATION' slot provides us the desired slot for our address.
