@@ -767,6 +767,25 @@ For reference -> [Challenge](./questions/24.Puzzle_Wallet.sol) | [Solution](./an
 
 This solution is widely explained in the solution itself, with those links. So, I will advise you to go through that and then try to solve this challenge. It's a bit tricky but you will get it!
 
+## 25 - Motorbike
+
+For reference -> [Challenge](./questions/25.Motorbike.sol) | [Solution](./answers/25.Motorbike/)
+
+This challenge is a good one and it be easy if you know about the `UUPS`, `Proxies` and `delegate calls`. We are given two contracts, one is Engine (Proxy) and other is Motorbike (logic). The goal is to disrupt the Motorbike by changing it's owner thus the logic can't be upgraded anymore.
+
+**Note: Do understand the code, you can even take a look at this [video](https://youtu.be/D7IfmkINYJ0?t=386)**
+
+The vulnerability lies in the `initialize` function of the Motorbike contract:
+
+```solidity
+    function initialize() external initializer {
+        horsepower = 1000;
+        upgrader = msg.sender;
+    }
+```
+
+Usually, in UUPS or proxies like these upgrader is allowed to call the initliaze function only once. But here, the `initialize` function is public and can be called by anyone. Thus, we can change the owner of the Motorbike contract by calling the `initialize` function. A detailed step by step solution is provided in the [Solution](./answers/25.Motorbike/25.Motorbike.js) file.
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
