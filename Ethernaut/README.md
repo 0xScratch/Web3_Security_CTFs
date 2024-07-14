@@ -786,6 +786,64 @@ The vulnerability lies in the `initialize` function of the Motorbike contract:
 
 Usually, in UUPS or proxies like these upgrader is allowed to call the initliaze function only once. But here, the `initialize` function is public and can be called by anyone. Thus, we can change the owner of the Motorbike contract by calling the `initialize` function. A detailed step by step solution is provided in the [Solution](./answers/25.Motorbike/25.Motorbike.js) file.
 
+## 26 - DoubleEntryPoint
+
+For reference -> [Challenge](./questions/26.DoubleEntryPoint.sol) | [Solution](./answers/26.DoubleEntryPoint/)
+
+This challenge teaches us to how to setup a Forta bot, thus we created one [here](./answers/26.DoubleEntryPoint/26.DetectionBot.sol) which will be deployed and if you notice that the constructor needs an address which we will get from running the following command in the browser's console:
+
+```javascript
+    const cryptoVaultAddr = await contract.cryptoVault()
+```
+
+Also, copy the address of the bot contract and store in a variable.
+
+```javascript
+    const detectionBotAddr = "your_bot_contract_address"
+```
+
+Setting up the function part of the call data - Copy the down code and paste it in the console
+
+```javascript
+    const func = {
+        "inputs": [
+        { 
+            "name": "detectionBotAddr",
+            "type": "address"
+        }
+        ],
+        "name": "setDetectionBot", 
+        "type": "function"
+    };
+```
+
+Next, we will define the parameters of the call, which is where we will pass in our detection bot address
+
+```javascript
+    const params = [detectionBotAddr]
+```
+
+Now just concatenate our calldata
+
+```javascript
+    const data = web3.eth.abi.encodeFunctionCall(func, params)
+```
+
+Finally, we send our transaction to set our bot and finally submit
+
+```javascript
+    await web3.eth.sendTransaction({
+        from: player,
+        to: cryptoVaultAddr,
+        data: data
+    })
+```
+
+Refer these links for a better explaination:
+
+1. [coinmonks_medium](https://medium.com/coinmonks/26-double-entry-point-ethernaut-explained-f9c06ac93810)
+2. [daltyboy11_github](https://daltyboy11.github.io/every-ethernaut-challenge-explained/#doubleentrypoint)
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
