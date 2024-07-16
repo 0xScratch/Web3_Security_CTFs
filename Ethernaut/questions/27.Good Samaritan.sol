@@ -59,7 +59,8 @@ contract Coin {
             balances[msg.sender] -= amount_;
             balances[dest_] += amount_;
 
-            if(dest_.isContract()) {
+            // fix made according to the latest openezeppelin version, as now the .isContract() function is deprecated
+            if(dest_.code.length > 0) {
                 // notify contract 
                 INotifyable(dest_).notify(amount_);
             }
