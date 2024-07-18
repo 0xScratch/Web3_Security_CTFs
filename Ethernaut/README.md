@@ -1051,6 +1051,107 @@ Now, let me follow through the exact steps you need to take in order to solve th
 
 6. For the last gate, all you have to do is send some ether greater than 0.001 to the `GatekeeperThree` contract using `await contract.sendTransaction({value: 1100000000000000})` and the 2nd condition will be satisfied as we don't have a `receive` or `fallback` function in our attacking contract. Now, call the `attack` function and submit the instance...Cheers!
 
+## 29 - Switch
+
+For reference -> [Challenge](./questions/29.Switch.sol) | [Solution](./answers/29.Switch.js)
+
+This challenge is interesting and got us a knowledge about calldata encoding which gonna be worthy to understand. Here, we got a contract named `Switch` where our task is to turn the boolean `switchOn` to true. There are several functions given to us like, `flipSwitch`, `turnSwitchOn` and `turnSwitchOff`, And two modifiers i.e `onlyOff` and `onlyThis`. Let's talk about them a bit like what they do, such that we will have a better idea in solving this challenge.
+
+`turnSwitchOn` and `turnSwitchOff` are very similar as both of them turn `switchOn` to true and false respectively. They both use `onlyThis` modifier which seeks that the caller of these two functions should be the address itself, which is quite tricky to find a way against.
+
+```solidity
+    modifier onlyThis() {
+        require(msg.sender == address(this), "Only the contract can call this");
+        _;
+    }
+
+    function turnSwitchOn() public onlyThis {
+        switchOn = true;
+    }
+
+    function turnSwitchOff() public onlyThis {
+        switchOn = false;
+    }
+```
+
+Now comes the `flipSwitch` function which takes a parameter `bytes memory _data` i.e some calldata which can be passed to this function. Thus, this function will help us in calling both `turnSwitchOn` and `turnSwitchOff` as all we have to do is form our calldata in such a way that we are able to call these two functions. It also uses `onlyOff` function which I will talk about in a while.
+
+```solidity
+    function flipSwitch(bytes memory _data) public onlyOff {
+        (bool success, ) = address(this).call(_data);
+        require(success, "call failed :(");
+    } 
+```
+
+Here I am pointing to a section within the solidity docs which is about function selectors and arguments encoding that be really helpful here. I would have explained you the same, but these docs have really done a fantastic job in explaining it: [Function Selector and Argument encoding](https://docs.soliditylang.org/en/v0.8.19/abi-spec.html#function-selector-and-argument-encoding)
+
+If that confuses a bit, do take a help from chatGPT. And, if you are really sure what does it mean by function selectors, offsets, lengths and how various data types is used as arguments within the encoding i.e storing `uint` and an array of `bytes` is often different, then you are good to go!
+
+As promised, now let's talk about the `onlyOff` modifier. The code line `bytes32[1] memory selector` indicates that the array selector will consists of just 1 element of bytes32.
+
+```solidity
+    modifier onlyOff() {
+        // we use a complex data type to put in memory
+        bytes32[1] memory selector;
+        // check that the calldata at position 68 (location of _data)
+        assembly {
+            calldatacopy(selector, 68, 4) // grab function selector from calldata
+        }
+        require(
+            selector[0] == offSelector,
+            "Can only call the turnOffSwitch function"
+        );
+        _;
+    }
+```
+
+Next comes the `calldatacopy` within the assembly, what it does is copied data from the calldata to the memory. Keep in mind that the calldata is the data we will be providing to the EVM, and calldatacopy takes that data and stores in its memory. Now there are several parameters which are useful here, `selector` tells from where the starting position in memory at where the data will get copied to, `68` is the offset which tells the starting position in calldata where we should start copying from, and `4` is the length that tells how much bytes of data to copy.
+Thus `calldatacopy(selector, 68, 4)` means that -> From the given calldata, skip first 67 bytes and copy 4 bytes of data from 68th byte, then store it in selector within the memory.
+
+Next comes the `require` statement which checks whether the data within the selector (which we copied using calldatacopy) is equal to the `offSelector` or not. Just letting you know, `offSelector` is mentioned right below the boolean `switchOn` and it's consists of first 4 bytes of the keccak hash of `turnSwitchOff` function. Usually, function selectors are first 4 bytes of any function's keccak hash. Thus, if the data within the selector contains the function selector of `turnSwitchOff` then the require condition be true.
+
+Now, the question is how to make that require statement true. The answer is right there in `calldatacopy`, all we need to do is pass such type of data that at 68th byte the function selector of `turnSwitchOff` function is present. Plus, we have to call `turnSwitchOn` in the same calldata as that's what the main motive is.
+
+Now, let's create our calldata in order to solve this challenge:
+
+1. First we will include the function selector of `flipSwitch` function. For this all you need to do is, get a keccak256 hash of `flipSwitch(bytes)` and take first 4 bytes of it i.e 0x30c13ade. Thus, our first 4 bytes of calldata will look like this -> `30c13ade`.
+
+2. Next, we will be including the offset here as `flipSwitch` takes data in the form of bytes and we have to run that `turnSwitchOn` function. Thus, our data will contains the offset where the function selector of `turnSwitchOn` is present such that EVM could pick it up easily. Now, whoever is thinking what about the `turnSwitchOff` which we need to pass through the modifier, it will be just for a show as we don't really want to run this function just include it. Hence the offset gonna be 96 bytes i.e will be pointing at `turnSwitchOn` (length + function selector). It will look like this -> `0000000000000000000000000000000000000000000000000000000000000060`
+
+3. Here, we can't include `turnSwitchOff` function selector as it should appear on 68th byte according to the `onlyOff` modifier check. Thus, will leave it empty i.e 32 bytes of zeroes -> `0000000000000000000000000000000000000000000000000000000000000000`
+
+4. Now, we are at 68th byte according to the offset related to `calldatacopy` and hence will include the funtion selector of `turnSwitchOff` function by taking the first 4 bytes of keccak hash of `turnSwitchOff()` and padding it with zeroes to make it 32 bytes value. It looks like this -> `20606e1500000000000000000000000000000000000000000000000000000000`
+
+5. Here, we are at the 96th byte as per the offset on 2nd point. There's a thing I would like to say as some might have confusion related to the statement, "how we are at 96th byte here, despite the fact that it should be 100th". Actually, for `calldatacopy` the calldata starts right from the function selector of `flipSwitch` whereas when we are inside the `flipSwitch` function, the calldata starts from the offset i.e 0x00...60, hope that clears the case. Moreover, here we will be inlcuding length first and then the actual data, as when one says about pointing at any data, it points to the length if it exists. Thus, it will look like this -> `0000000000000000000000000000000000000000000000000000000000000004`
+
+6. At last, the function selector of `turnSwitchOn()` function -> `76227e1200000000000000000000000000000000000000000000000000000000`
+
+7. Here's a recap of all those combined values:
+
+```typescript
+    // Calldata layout ->
+    // 30c13ade -> function selector for flipSwitch(bytes memory data)
+    // 0000000000000000000000000000000000000000000000000000000000000060 -> offset for the data field -> 0x60 = 96 bytes
+    // 0000000000000000000000000000000000000000000000000000000000000000 -> empty stuff so we can have bytes4(keccak256("turnSwitchOff()")) at 64 bytes
+    // 20606e1500000000000000000000000000000000000000000000000000000000 -> bytes4(keccak256("turnSwitchOff()"))
+    // 0000000000000000000000000000000000000000000000000000000000000004 -> length of data field -> 96th byte starts from here
+    // 76227e1200000000000000000000000000000000000000000000000000000000 -> functin selector for turnSwitchOn()
+```
+
+Hence we got the combined calldata that we gotta pass: `30c13ade0000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000020606e1500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000476227e1200000000000000000000000000000000000000000000000000000000`
+
+Now, go to your browser's console and store this calldata value in a variable let's say `attack`
+
+Send this transaction and submit!
+
+```javascript
+    await sendTransaction({
+        from: player,
+        to: contract.address,
+        data: attack
+    })
+```
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
