@@ -7,7 +7,7 @@
  * Hence, what we will do is create a signature for the `registerTreasury` function and then pass the offset value greater than 255 to it, so that we can bypass the check and claim the leadership.  
 */
 
-// This will create a signature for the `registerTreasury` function. Notice we are passing a uint256 value to it by converting 256 into a hex form and adding 64 to the left. That substring(2) is used to remove the `0x` from the hex value as that's been already added by the first part of data.
+// This will create a signature for the `registerTreasury` function. Notice we are passing a uint256 value to it by converting 256 into a hex form and padded the hexadecimal string 256 to 64 hexadecimal characters (32 bytes). That substring(2) is used to remove the `0x` from the hex value as that's been already added by the first part of data.
 const data = 
     web3.eth.abi.encodeFunctionSignature('registerTreasury(uint256)') + web3.utils.leftPad(web3.utils.toHex(256), 64).substring(2)
 
