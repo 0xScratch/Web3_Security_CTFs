@@ -1152,6 +1152,53 @@ Send this transaction and submit!
     })
 ```
 
+## 30 - Higher Order
+
+For reference -> [Challenge](./questions/30.Higher_Order.sol) | [Solution](./answers/30.Higher_Order.js)
+
+This challenge is pretty easy if you have some knowledge about low-level calls and calldata. Let's dive into the challenge and see what we got here. We are given a contract named `HigherOrder` which consists of two functions `registerTreasury` and `claimLeadership`. Our main goal is to become the commander of this contract by executing the `claimLeadership` function but there's a catch, it needs the value of treasury to be greater than 255. Luckily, `registerTreasury` helps in updating the treasury value but it takes a `uint8` integer, means we can't really pass value greater than 255 as solidity type-checker will throw us an error regarding that.
+
+```solidity
+    function registerTreasury(uint8) public {
+        assembly {
+            sstore(treasury.slot, calldataload(4))
+        }
+    }
+
+    function claimLeadership() public {
+        if (treasury > 255) commander = msg.sender;
+        else revert("Only members of the Higher Order can become Commander");
+    }
+```
+
+However, a closer look within the `registerTreasury` function will show you rather than using normal solidity syntax, the contract is using inline-assembly to store the value of treasury directly into treasury slot. `calldataload(4)` loads 32 bytes of data starting from 4th byte. Why 4th byte? Because the first 4 bytes are used to store the function selector of the function being called. Thus, the 4th byte onwards will be the value of the `uint8` integer we are passing to the `registerTreasury` function. Moreover, these low-level calls don't use any type checker and thus we can pass here any value greater than 255 by using a low level call.
+
+Let's solve the challenge:
+
+First, let's create the low-level call. We need the function selector of the function we are calling + the value and then will store it in a variable.
+
+```javascript
+    const data = web3.eth.abi.encodeFunctionSignature('registerTreasury(uint256)') + web3.utils.leftPad(web3.utils.toHex(256), 64).substring(2)
+```
+
+Here, we used `web3.eth.abi.encodeFunctionSignature` to get the function selector of `registerTreasury` function and then first converted the value `256` to Hexadecimal characters and then padded to make it of 64 hexadecimal characters (i.e. 32 bytes). We used `substring(2)` to remove the `0x` from the start of the hex value. Finally, we concatenated both of them to get the calldata.
+
+Now, let's create the transaction with which we gonna pass this data:
+
+```javascript
+    await sendTransaction({
+        from: player,
+        to: instance,
+        data: data
+    })
+```
+
+At last, call the `claimLeadership` function and submit!
+
+```javascript
+    await contract.claimLeadership()
+```
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
