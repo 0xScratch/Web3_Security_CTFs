@@ -1,5 +1,5 @@
 /**
-    This contract is used only for the requirements of 3rd and 4th condition which is mentioned here -> 
+    This contract is used only for the requirements of 1st and 2nd condition which is mentioned here -> https://github.com/0xScratch/Web3_Security_CTFs/blob/d6ae02ea7bb9d5710512c40af51925598adcb4a4/Ethernaut/README.md#L1283
 */
 
 // SPDX-License-Identifier: MIT
