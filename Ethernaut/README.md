@@ -1199,6 +1199,95 @@ At last, call the `claimLeadership` function and submit!
     await contract.claimLeadership()
 ```
 
+## 31 - Stake
+
+For Reference -> [Challenge](./questions/31.Stake.sol) | [Malicious Contract](./answers/31.Stake.sol)
+
+This challenge is interesting and tells about the low-level calls we often make in respective of `transfer` and `send` functions.
+
+We are given a contract named `Stake` which let us stake our `ETH` and `WETH`. You can read more about WETH [here](https://weth.io/).
+
+Our main goal here is to fulfill these 4 requirements:
+
+1. Contract's balance > 0
+2. `totalStaked` > contract's balance
+3. You must be a staker
+4. Your staked balannce = 0
+
+Now, let's take a look at some of the functions and other stuff provided within `Staked` contract:
+
+`totalStaked`: It tells about the total amount of `ETH` and `WETH` staked by all the stakers.
+
+`UserStake`: It's a mapping which maps the address of the staker to the amount of `ETH` and `WETH` staked by him/her.
+
+`Stakers`: It's a mapping which maps the address of the staker to a boolean value which tells whether the address is a staker or not.
+
+`address public WETH`: It's a public variable which stores the address of the `WETH` contract that will be used to handle `WETH` tokens.
+
+Functions:
+
+`StakeETH`: This function is quite straightforward with just 4 code lines. First checks whether the amount of `ETH` being staked is greater than 0.001, then adds the value to `totalStaked` and also adds it to the mapping `UserStake`. At last, it sets the `Stakers` mapping to true for that particular user/player.
+
+```solidity
+    function StakeETH() public payable {
+        require(msg.value > 0.001 ether, "Don't be cheap");
+        totalStaked += msg.value;
+        UserStake[msg.sender] += msg.value;
+        Stakers[msg.sender] = true;
+    }
+```
+
+`StakeWETH`: This function does the similar thing but first let's this contract approve our tokens such that it can transfer them, and then use a low-level call for it but that's where the catch is. If you notice, the call is used tho but it wasn't checked whether that call failed or not. There's a thing with low-level calls and that's important to take care of, as they don't throw any error if the call fails. Plus, it even don't use `payable` keyword. Thus, we can use all this to our advantage.
+
+```solidity
+    function StakeWETH(uint256 amount) public returns (bool){
+        require(amount >  0.001 ether, "Don't be cheap");
+        (,bytes memory allowance) = WETH.call(abi.encodeWithSelector(0xdd62ed3e, msg.sender,address(this)));
+        require(bytesToUint(allowance) >= amount,"How am I moving the funds honey?");
+        totalStaked += amount;
+        UserStake[msg.sender] += amount;
+        (bool transfered, ) = WETH.call(abi.encodeWithSelector(0x23b872dd, msg.sender,address(this),amount));
+        Stakers[msg.sender] = true;
+        return transfered;
+    }
+```
+
+`Unstake`: This function first checks whether the user is trying to stake more than he did, then decreases the amount from both `UserStake` and `totalStaked`. It also does that same mistake of not checking whether the call failed or not.
+
+```solidity
+    function Unstake(uint256 amount) public returns (bool){
+        require(UserStake[msg.sender] >= amount,"Don't be greedy");
+        UserStake[msg.sender] -= amount;
+        totalStaked -= amount;
+        (bool success, ) = payable(msg.sender).call{value : amount}("");
+        return success;
+    }
+```
+
+`bytesToUint`: This function is used to convert the bytes to uint. The way it works is, it directly loads the value part of that bytes, as a byte is stored in the form of `length + value` and that's what makes it bytes. Thus, it's just we need to extract that value part into the memory and as `returns` is already decided to be `uint256` thus it will convert that value part into `uint`.
+
+```solidity
+    function bytesToUint(bytes memory data) internal pure returns (uint256) {
+        require(data.length >= 32, "Data length must be at least 32 bytes");
+        uint256 result;
+        assembly {
+            result := mload(add(data, 0x20))
+        }
+        return result;
+    }
+```
+
+So, we got all the related information about the functions and the vulnerability too. Now the task is how to take advantage of it and fulfill all those requirements.
+
+Although, the solution is quite easy and maybe you even figured it out. First, we will be staking ether greater than 0.001 ether and then immediately unstake it, this will fulfill our 3rd and 4th requirements i.e we will be a staker and our balance will be 0.
+Next, we will be using a malacious contract that will be staking `WETH` tokens greater than 0.001 ether but in actual passing no `msg.value` just that `amount`. Contract will feel like some tokens are staked and make that call but as it will fail and there's nothing to check that failure, we are good to and our 1st and 2nd requirements will be fulfilled easily.
+
+For the first part, just get to your remix, copy the code and address, use the metamask inject provider and then do the thing we discussed. Stake 0.001 ether + 1 wei and then unstake it.
+
+For the second part, deploy this [contract](./answers/31.Stake.sol) and then call the `pwn` function. You will notice that the balance of the contract will be increased by the constructor and we know about that the call failure and thus the requirements will be fulfilled.
+
+At last, submit the instance and you are good to go!
+
 ## Contributing
 
 Contributions to the Ethernaut_Practice project are welcome! If you have a solution to a challenge that is not yet included, or if you have suggestions for improvements, feel free to open a pull request.
