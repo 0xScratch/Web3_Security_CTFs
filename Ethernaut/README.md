@@ -2,6 +2,41 @@
 
 Solution to the [Ethernaut](https://ethernaut.openzeppelin.com/) challenges!
 
+## Contents
+
+0. [Hello Ethernaut](#00---hello-ethernaut)
+1. [Fallback](#01---fallback)
+2. [Fallout](#02---fallout)
+3. [Coin Flip](#03---coin-flip)
+4. [Telephone](#04---telephone)
+5. [Token](#05---token)
+6. [Delegation](#06---delegation)
+7. [Force](#07---force)
+8. [Vault](#08---vault)
+9. [King](#09---king)
+10. [Re-entrancy](#10---re-entrancy)
+11. [Elevator](#11---elevator)
+12. [Privacy](#12---privacy)
+13. [Gatekeeper One](#13---gatekeeper-one)
+14. [Gatekeeper Two](#14---gatekeeper-two)
+15. [Naught Coin](#15---naught-coin)
+16. [Preservation](#16---preservation)
+17. [Recovery](#17---recovery)
+18. [Magic Number](#18---magic-number)
+19. [Alien Codex](#19---alien-codex)
+20. [Denial](#20---denial)
+21. [Shop](#21---shop)
+22. [DEX](#22---dex)
+23. [DEX Two](#23---dex-two)
+24. [Puzzle Wallet](#24---puzzle-wallet)
+25. [Motorbike](#25---motorbike)
+26. [DoubleEntryPoint](#26---doubleentrypoint)
+27. [Good Samaritan](#27---good-samaritan)
+28. [Gatekeeper Three](#28---gatekeeper-three)
+29. [Switch](#29---switch)
+30. [Higher Order](#30---higher-order)
+31. [Stake](#31---stake)
+
 ## 00 - Hello Ethernaut
 
 For Reference -> [Challenge](./questions/00.Hello_Ethernaut.sol) | [Solution](./answers/00.Hello_Ethernaut.js)
